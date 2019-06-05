@@ -26,7 +26,7 @@ class FlashLightManager(private val cameraManager: CameraManager) {
         try {
             cameraManager.setTorchMode(cameraId, true)
             isFlashLightOn = true
-            Log.i("Linterna", "Apagada");
+            Log.i("Linterna", "Apagada")
         } catch (e: CameraAccessException) {
         }
 
@@ -37,7 +37,7 @@ class FlashLightManager(private val cameraManager: CameraManager) {
         try {
             cameraManager.setTorchMode(cameraId, false)
             isFlashLightOn = false
-            Log.i("Linterna", "Encendida");
+            Log.i("Linterna", "Encendida")
         } catch (e: CameraAccessException) {
         }
     }

@@ -15,7 +15,7 @@ import android.util.Log
 
 class ShakeListenerService : Service(), SensorEventListener {
 
-    private lateinit var cameraManager: CameraManager
+    private lateinit var mCameraManager: CameraManager
     private lateinit var mSensorManager: SensorManager
     private lateinit var mAccelerometer: Sensor
     private var mAccel: Float = 0F // acceleration apart from gravity
@@ -32,10 +32,10 @@ class ShakeListenerService : Service(), SensorEventListener {
     }
 
     private fun initializeVariables() {
-        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        mCameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        flashLightManager = FlashLightManager(cameraManager)
+        flashLightManager = FlashLightManager(mCameraManager)
     }
 
     private fun initializeShakeListener() {
@@ -58,8 +58,7 @@ class ShakeListenerService : Service(), SensorEventListener {
 
         if (mAccel > 11) {
             onShake()
-            Log.i("ShakeListenerService", "Se zarpo")
-
+            Log.i("ShakeListenerService", "Velocidad superada")
         }
     }
 
