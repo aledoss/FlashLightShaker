@@ -1,8 +1,10 @@
 package com.example.flashshaker
 
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -11,10 +13,12 @@ import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.IBinder
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 
 class ShakeListenerService : Service(), SensorEventListener {
 
+    private lateinit var flashLightManager: FlashLightManager
     private lateinit var mCameraManager: CameraManager
     private lateinit var mSensorManager: SensorManager
     private lateinit var mAccelerometer: Sensor
@@ -22,7 +26,28 @@ class ShakeListenerService : Service(), SensorEventListener {
     private var mAccelCurrent: Float = 0F // current acceleration including gravity
     private var mAccelLast: Float = 0F// last acceleration including gravity
 
-    private lateinit var flashLightManager: FlashLightManager
+    private lateinit var localBroadcastManager: LocalBroadcastManager
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            //TODO validar que sea el intent correcto
+            if (intent?.action == "STOP_SERVICE") {
+                mSensorManager.unregisterListener(this@ShakeListenerService)
+            } else {
+                mSensorManager.registerListener(
+                        this@ShakeListenerService, mAccelerometer, SensorManager.SENSOR_DELAY_UI, Handler()
+                )
+            }
+        }
+
+    }
+
+
+    override fun onCreate() {
+        super.onCreate()
+        localBroadcastManager = LocalBroadcastManager.getInstance(this)
+        localBroadcastManager.registerReceiver(receiver, IntentFilter("START_SERVICE"))
+        localBroadcastManager.registerReceiver(receiver, IntentFilter("STOP_SERVICE"))
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         initializeVariables()
@@ -40,7 +65,7 @@ class ShakeListenerService : Service(), SensorEventListener {
 
     private fun initializeShakeListener() {
         mSensorManager.registerListener(
-            this, mAccelerometer, SensorManager.SENSOR_DELAY_UI, Handler()
+                this, mAccelerometer, SensorManager.SENSOR_DELAY_UI, Handler()
         )
     }
 
@@ -67,7 +92,7 @@ class ShakeListenerService : Service(), SensorEventListener {
         flashLightManager.toggleFlashLight()
         Thread.sleep(300)
         mSensorManager.registerListener(
-            this, mAccelerometer, SensorManager.SENSOR_DELAY_UI, Handler()
+                this, mAccelerometer, SensorManager.SENSOR_DELAY_UI, Handler()
         )
     }
 
